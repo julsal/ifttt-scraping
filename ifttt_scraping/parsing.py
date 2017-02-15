@@ -1,9 +1,8 @@
-import collections
 import simplejson as json
 import re
 
 import mysl.file_reader as fr
-OriginalRecipe = collections.namedtuple('OriginalRecipe', 'url id title desc author featured uses favorites code')
+import ifttt_scraping.types as ist
 
 FILENAME = 0
 URL = 1
@@ -19,8 +18,7 @@ CODE = 9
 OPEN = '('
 CLOSE = ')'
 
-OPEN_STRING = '"'
-CLOSE_STRING = '"'
+DOUBLE_QUOTES = '"'
 
 ROOT_IF = '(ROOT (IF) '
 THEN = '(THEN) '
@@ -36,6 +34,7 @@ def _solve_inconsistency(text):
     text = text.replace('(PARAMS(Include))', '(PARAMS(Include(None)))')
     text = text.replace('(PARAMS(Tombinfo))', '(PARAMS(Tombinfo(None)))')
     text = text.replace('(PARAMS(Includi_anche))', '(PARAMS(Includi_anche(None)))')
+    text = text.replace('PARAMS(Scenario_identifier)', 'PARAMS(Scenario_identifier(None))')
     text = text.replace('(Select_the_days_of_the_week))))(', '(Select_the_days_of_the_week(None)))))(')
     text = text.replace('(Pick_the_days_of_the_week_here.))))', '(Pick_the_days_of_the_week_here.(None)))))')
     text = text.replace('(Days_of_the_week))))', '(Days_of_the_week(None)))))')
@@ -60,6 +59,13 @@ def _solve_inconsistency(text):
     text = text.replace('Location(new-england)', 'Location[new-england]')
     text = text.replace('Location(texas)', 'Location[texas]')
     text = text.replace('Location(portugal)', 'Location[portugal]')
+    text = text.replace('Location(florida)', 'Location[florida]')
+    text = text.replace('Location(florida-gulf)', 'Location[florida-gulf]')
+    text = text.replace('Location(southeast)', 'Location[southeast]')
+    text = text.replace('Location(taiwan)', 'Location[taiwan]')
+    text = text.replace('Location(mid-atlantic)', 'Location[mid-atlantic]')
+    text = text.replace('Location(morocco)', 'Location[morocco]')
+    text = text.replace('Location(el-salvador)', 'Location[el-salvador]')
 
     text = text.replace('Team(ita.1)(', 'Team("ita.1)(')
     text = text.replace('|ita.1&quot;}', '|ita.1&quot;}"')
@@ -70,6 +76,52 @@ def _solve_inconsistency(text):
     text = text.replace('Team(eng.1)(', 'Team("eng.1)(')
     text = text.replace('|eng.1&quot;}', '|eng.1&quot;}"')
 
+    text = text.replace('(ger.1)("{&quot;', '("ger.1)({&quot;')
+    text = text.replace('(nhl)("{&quot;', '("nhl)({&quot;')
+    text = text.replace('(ncaambb)("{&quot;', '("ncaambb)({&quot;')
+    text = text.replace('(nfl)("{&quot;', '("nfl)({&quot;')
+    text = text.replace('(nba)("{&quot;', '("nba)({&quot;')
+    text = text.replace('(mlb)("{&quot;', '("mlb)({&quot;')
+    text = text.replace('(victoria)("{&quot;', '("victoria)({&quot;')
+    text = text.replace('(northern-california)("{&quot;', '("northern-california)({&quot;')
+    text = text.replace('(wnba)("{&quot;', '("wnba)({&quot;')
+    text = text.replace('(nhl)("{&quot;', '("nhl)({&quot;')
+    text = text.replace('(nhl)("{&quot;', '("nhl)({&quot;')
+    text = text.replace('(nhl)("{&quot;', '("nhl)({&quot;')
+
+    text = text.replace('(Team(mlb)("', '(Team("mlb)(')
+    text = text.replace('Team(ncaambb)("', 'Team("ncaambb)(')
+    text = text.replace('Team(nfl)("', 'Team("nfl)(')
+    text = text.replace('Team(nba)("', 'Team("nba)(')
+    text = text.replace('Team(ncaawbb)("', 'Team("ncaawbb)(')
+    text = text.replace('team(ncaawbb)("', 'team("ncaawbb)(')
+    text = text.replace('Team(mls)("', 'Team("mls)(')
+    text = text.replace('Team(nhl)("', 'Team("nhl)(')
+    text = text.replace('Team(ncaaf)("', 'Team("ncaaf)(')
+    text = text.replace('team(nba)("', 'team("nba)(')
+    text = text.replace('team(mlb)("', 'team("mlb)(')
+    text = text.replace('team?(nba)("', 'team?("nba)(')
+    text = text.replace('Tide(ncaaf)("', 'Tide("ncaaf)(')
+    text = text.replace('team:(nfl)("', 'team:("nfl)(')
+    text = text.replace('Bruins(nhl)("', 'Bruins("nhl)(')
+    text = text.replace('Blue_Jays(mlb)("', 'Blue_Jays("mlb)(')
+    text = text.replace('team(nfl)("', 'team("nfl)(')
+    text = text.replace('Newcastle_United(nfl)("', 'Newcastle_United("nfl)(')
+    text = text.replace('Sounders(mls)("', 'Sounders("mls)(')
+    text = text.replace('Seahawks(nfl)("', 'Seahawks("nfl)(')
+    text = text.replace('Rebels(ncaambb)("', 'Rebels("ncaambb)(')
+    text = text.replace('spot:(morocco)("', 'spot:("morocco)(')
+    text = text.replace('spot:(barbados)("', 'spot:("barbados)(')
+    text = text.replace('location(morocco)("', 'location("morocco)(')
+    text = text.replace('team!(nfl)("', 'team!("nfl)(')
+
+    text = text.replace('Football(ncaaf)', 'Football[ncaaf]')
+    text = text.replace('here:(nba)("', 'here:("nba)(')
+    text = text.replace('Astros(mlb)("', 'Astros("mlb)(')
+    text = text.replace('team?(nfl)("', 'team?("nfl)(')
+    text = text.replace('(nfl)("', '("nfl)(')
+
+
     solver = dict()
     key = '(TRIGGER(Date_&_Time)(FUNC(Every_day_of_the_week_at)(PARAMS(Time_of_day(07:30))(Days_of_the_week))))(ACTION(SMS)(FUNC(Send_me_an_SMS)(PARAMS(Message("Street Sweepers are coming!")))))'
     value = '(TRIGGER(Date_&_Time)(FUNC(Every_day_of_the_week_at)(PARAMS(Time_of_day(07:30))(Days_of_the_week(None)))))(ACTION(SMS)(FUNC(Send_me_an_SMS)(PARAMS(Message("Street Sweepers are coming!")))))'
@@ -77,6 +129,11 @@ def _solve_inconsistency(text):
 
     key = '(TRIGGER(Date_&_Time)(FUNC(Every_day_of_the_week_at)(PARAMS(Time_of_day(12:00))(Days_of_the_week))))(ACTION(Campfire)(FUNC(Post_a_message)(PARAMS(Which_room?(""))(Message("Hark! I have something to say...")))))'
     value = '(TRIGGER(Date_&_Time)(FUNC(Every_day_of_the_week_at)(PARAMS(Time_of_day(12:00))(Days_of_the_week(None)))))(ACTION(Campfire)(FUNC(Post_a_message)(PARAMS(Which_room?(""))(Message("Hark! I have something to say...")))))'
+    solver[key] = value
+
+    #if '"{\\"lat\\"' in text or 'aviso@servipag.com' in text:
+    text = text.replace('\\"', '')
+
     solver[key] = value
 
     return solver[text] if text in solver else text
@@ -292,13 +349,9 @@ def _simplify(text):
     text = _simplify_data_time(text, 'Birthday')
     text = _simplify_data_time(text, '9:30')
     text = _simplify_data_time(text, 'Date_&amp;_Time')
-    text = _simplify_data_time(text, 'The_25th_of_May')
-    text = _simplify_data_time(text, 'The_25th_of_May')
-    text = _simplify_data_time(text, 'The_25th_of_May')
-    text = _simplify_data_time(text, 'The_25th_of_May')
-
 
     return text
+
 
 def _preprocess(text):
     if text.startswith(ROOT_IF):
@@ -325,10 +378,8 @@ def _tokenizer(text):
 
     into_string = False
     for c in text:
-        if c == OPEN_STRING:
-            into_string = True
-        elif c == CLOSE_STRING:
-            into_string = True
+        if c == DOUBLE_QUOTES:
+            into_string = not into_string
         elif not into_string and (c in [OPEN, CLOSE]):
             if len(token) > 0:
                 tokens.append(token)
@@ -338,6 +389,8 @@ def _tokenizer(text):
             token += c
     if len(token) > 0:
         tokens.append(token)
+
+
     return tokens
 
 
@@ -367,6 +420,10 @@ def _parse_code(text):
                 chunk.append(stack.pop())
             stack.pop()
 
+            #in the case of empty params.
+            if len(chunk) == 0:
+                chunk.append('None')
+
             if len(chunk) == 1:
                 if chunk[0] == PARAMS:
                     while len(params) > 0:
@@ -382,9 +439,9 @@ def _parse_code(text):
 
                 elif chunk[0] in TYPES:
                     call['name'] = content.pop()
+                    code[chunk[0].lower()] = call
 
                     params_dict = dict()
-                    code[chunk[0].lower()] = call
                     call = dict()
 
                 elif not reading_params:
@@ -392,27 +449,33 @@ def _parse_code(text):
                 else:
                     params.append(chunk[0])
             else:
-                print("Error: invalid format {}".format(' '.join(chunk)))
+                print("Error: invalid format {}".format(text))
+
     return code
 
 
 def parse_original_file(infile, outfile):
-    recipes = dict()
+    recipes = list()
 
     tuples = fr.line_to_tuple_in_list(infile, separator='\t', ignore_headline=True)
+
     for i, t in enumerate(tuples):
-        if (i%500) == 0 or i == len(tuples) - 1:
+        if (i%1000) == 0 or i == len(tuples) - 1:
             print('Processing tuple {} out of {}...'.format(i+1, len(tuples)))
+
         code = _parse_code(t[CODE])
-        id = int(t[ID])
-        recipe = OriginalRecipe(t[URL], id, t[TITLE], t[DESC], t[AUTHOR], t[FEATURED], t[USES], t[FAVORITES], code)
-        recipes[id] = recipe
+        url = t[URL]
+        recipe = ist.OriginalRecipe(url, int(t[ID]), t[TITLE], t[DESC], t[AUTHOR], t[FEATURED], t[USES], t[FAVORITES], code)
+        recipes.append(recipe)
 
     if outfile is not None:
         with open(outfile, 'w') as f:
-            json.dump(recipes.values(), f)
+            json.dump(recipes, f)
     else:
-        return recipes
+        recipes_dict = dict()
+        for recipe in recipes:
+            recipes_dict[recipe.url] = recipe
+        return recipes_dict
 
 
 def run():

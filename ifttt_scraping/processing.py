@@ -1,11 +1,8 @@
 import os
-import collections
 from bs4 import BeautifulSoup
 
 import mysl.file_reader as fr
-from ifttt_scraping import scraping
-
-Recipe = collections.namedtuple('Recipe', 'url, name, desc, trigger_channel, trigger, action_channel, action')
+import ifttt_scraping.types as ist
 
 
 def parse_recipes(basedir, files):
@@ -32,7 +29,7 @@ def parse_recipes(basedir, files):
                     action_channel = parts[1].find('h5').getText()
                     action = parts[1].find('span').getText()
 
-                    recipes.append(Recipe(file, name, desc, trigger_channel, trigger, action_channel, action))
+                    recipes.append(ist.Recipe(file, name, desc, trigger_channel, trigger, action_channel, action))
 
                 else:
                     print('Error: {}', file)
@@ -52,6 +49,6 @@ def run():
 
     recipes = parse_recipes(basedir, files)
     fr.write_tupla_per_line(outfile, recipes, separator='\t',
-                    headline=Recipe('#URL', 'NAME', 'DESC', 'TRIGGER_CHANNEL', 'TRIGGER', 'ACTION_CHANNEL', 'ACTION'))
+                    headline=ist.Recipe('#URL', 'NAME', 'DESC', 'TRIGGER_CHANNEL', 'TRIGGER', 'ACTION_CHANNEL', 'ACTION'))
 
 #run()

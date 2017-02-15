@@ -26,7 +26,7 @@ def run():
     gold_tuples = fr.line_to_tuple_in_list(gold, separator='\t', ignore_headline=True)
     gold_dict = dict()
     for g in gold_tuples:
-        gold_dict['https://ifttt.com/recipes/' + g[URL]] = g
+        gold_dict['https://ifttt.com/recipes/' + g[turk.URL]] = g
 
     urls = turk.get_relevant_urls(majority=False, gold=gold_dict)
     print('total: ' + str(len(urls)))
