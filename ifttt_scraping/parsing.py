@@ -32,7 +32,7 @@ PARAMS = 'PARAMS'
 TYPES = [TRIGGER, ACTION]
 
 
-def solve_inconsistency(text):
+def _solve_inconsistency(text):
     text = text.replace('(PARAMS(Include))', '(PARAMS(Include(None)))')
     text = text.replace('(PARAMS(Tombinfo))', '(PARAMS(Tombinfo(None)))')
     text = text.replace('(PARAMS(Includi_anche))', '(PARAMS(Includi_anche(None)))')
@@ -81,7 +81,7 @@ def solve_inconsistency(text):
 
     return solver[text] if text in solver else text
 
-def simplify_7_days(text, fixed):
+def _simplify_7_days(text, fixed):
     regex = "(.*)({})(\([0-9]+\))(\([0-9]+\))(\([0-9]+\))(\([0-9]+\))(\([0-9]+\))(\([0-9]+\))(\([0-9]+\))(.*)".format(fixed)
     m = re.match(regex, text)
 
@@ -108,7 +108,7 @@ def simplify_7_days(text, fixed):
 
     return text
 
-def simplify_6_days(text, fixed):
+def _simplify_6_days(text, fixed):
     regex = "(.*)({})(\([0-9]+\))(\([0-9]+\))(\([0-9]+\))(\([0-9]+\))(\([0-9]+\))(\([0-9]+\))(.*)".format(fixed)
     m = re.match(regex, text)
 
@@ -133,7 +133,8 @@ def simplify_6_days(text, fixed):
 
     return text
 
-def simplify_5_days(text, fixed):
+
+def _simplify_5_days(text, fixed):
     regex = "(.*)({})(\([0-9]+\))(\([0-9]+\))(\([0-9]+\))(\([0-9]+\))(\([0-9]+\))(.*)".format(fixed)
     m = re.match(regex, text)
 
@@ -156,7 +157,8 @@ def simplify_5_days(text, fixed):
 
     return text
 
-def simplify_4_days(text, fixed):
+
+def _simplify_4_days(text, fixed):
     regex = "(.*)({})(\([0-9]+\))(\([0-9]+\))(\([0-9]+\))(\([0-9]+\))(.*)".format(fixed)
     m = re.match(regex, text)
 
@@ -177,7 +179,8 @@ def simplify_4_days(text, fixed):
 
     return text
 
-def simplify_3_days(text, fixed):
+
+def _simplify_3_days(text, fixed):
     regex = "(.*)({})(\([0-9]+\))(\([0-9]+\))(\([0-9]+\))(.*)".format(fixed)
     m = re.match(regex, text)
 
@@ -197,7 +200,7 @@ def simplify_3_days(text, fixed):
     return text
 
 
-def simplify_2_days(text, fixed):
+def _simplify_2_days(text, fixed):
     regex = "(.*)({})(\([0-9]+\))(\([0-9]+\))(.*)".format(fixed)
     m = re.match(regex, text)
 
@@ -215,7 +218,7 @@ def simplify_2_days(text, fixed):
     return text
 
 
-def simplify_time(text, fixed):
+def _simplify_time(text, fixed):
 
     regex = "(.*)({})(\([0-9]+\))(\(:\))(\([0-9]+\))(.*)".format(fixed)
     m = re.match(regex, text)
@@ -234,7 +237,7 @@ def simplify_time(text, fixed):
     return text
 
 
-def simplify_data_time(text, fixed):
+def _simplify_data_time(text, fixed):
 
     regex = "(.*)({})(\([0-9]+\))(\([0-9]+\))(\(\—\))(\([0-9]+\))(\(:\))(\([0-9]+\))(.*)".format(fixed)
     m = re.match(regex, text)
@@ -257,47 +260,47 @@ def simplify_data_time(text, fixed):
     return text
 
 
-def simplify(text):
+def _simplify(text):
 
     for fixed in ['Days_of_the_week', 'Uncheck_fasting_days']:
-        text = simplify_7_days(text, fixed)
-        text = simplify_6_days(text, fixed)
-        text = simplify_5_days(text, fixed)
-        text = simplify_4_days(text, fixed)
-        text = simplify_3_days(text, fixed)
-        text = simplify_2_days(text, fixed)
+        text = _simplify_7_days(text, fixed)
+        text = _simplify_6_days(text, fixed)
+        text = _simplify_5_days(text, fixed)
+        text = _simplify_4_days(text, fixed)
+        text = _simplify_3_days(text, fixed)
+        text = _simplify_2_days(text, fixed)
 
-    text = simplify_time(text, 'Time_of_day')
-    text = simplify_time(text, 'Select_the_time_of_day')
-    text = simplify_time(text, 'What_time_of_day_do_you_want_to_be_reminded\?')
-    text = simplify_time(text, 'Pick_a_time_of_day')
-    text = simplify_time(text, 'Pick_the_time_of_day')
-    text = simplify_time(text, 'What_time_of_day\?')
+    text = _simplify_time(text, 'Time_of_day')
+    text = _simplify_time(text, 'Select_the_time_of_day')
+    text = _simplify_time(text, 'What_time_of_day_do_you_want_to_be_reminded\?')
+    text = _simplify_time(text, 'Pick_a_time_of_day')
+    text = _simplify_time(text, 'Pick_the_time_of_day')
+    text = _simplify_time(text, 'What_time_of_day\?')
 
-    text = simplify_data_time(text, 'Date_and_time')
-    text = simplify_data_time(text, 'The_date_and_time_to_send_the_message')
-    text = simplify_data_time(text, 'The_timing')
-    text = simplify_data_time(text, 'What_time_is_a_good_time_to_call\?')
-    text = simplify_data_time(text, 'Your_Birthday')
-    text = simplify_data_time(text, 'When_did_you_first_see_the_light_of_day\?')
-    text = simplify_data_time(text, 'Date_and_time_one_week_before')
-    text = simplify_data_time(text, 'Дата_и_время')
-    text = simplify_data_time(text, 'The_25th_of_May')
-    text = simplify_data_time(text, 'When_is_your_birthday\?')
-    text = simplify_data_time(text, 'Set_to_his/her_birthday_@_midnight')
-    text = simplify_data_time(text, 'Your_birthday:')
-    text = simplify_data_time(text, 'Birthday')
-    text = simplify_data_time(text, '9:30')
-    text = simplify_data_time(text, 'Date_&amp;_Time')
-    text = simplify_data_time(text, 'The_25th_of_May')
-    text = simplify_data_time(text, 'The_25th_of_May')
-    text = simplify_data_time(text, 'The_25th_of_May')
-    text = simplify_data_time(text, 'The_25th_of_May')
+    text = _simplify_data_time(text, 'Date_and_time')
+    text = _simplify_data_time(text, 'The_date_and_time_to_send_the_message')
+    text = _simplify_data_time(text, 'The_timing')
+    text = _simplify_data_time(text, 'What_time_is_a_good_time_to_call\?')
+    text = _simplify_data_time(text, 'Your_Birthday')
+    text = _simplify_data_time(text, 'When_did_you_first_see_the_light_of_day\?')
+    text = _simplify_data_time(text, 'Date_and_time_one_week_before')
+    text = _simplify_data_time(text, 'Дата_и_время')
+    text = _simplify_data_time(text, 'The_25th_of_May')
+    text = _simplify_data_time(text, 'When_is_your_birthday\?')
+    text = _simplify_data_time(text, 'Set_to_his/her_birthday_@_midnight')
+    text = _simplify_data_time(text, 'Your_birthday:')
+    text = _simplify_data_time(text, 'Birthday')
+    text = _simplify_data_time(text, '9:30')
+    text = _simplify_data_time(text, 'Date_&amp;_Time')
+    text = _simplify_data_time(text, 'The_25th_of_May')
+    text = _simplify_data_time(text, 'The_25th_of_May')
+    text = _simplify_data_time(text, 'The_25th_of_May')
+    text = _simplify_data_time(text, 'The_25th_of_May')
 
 
     return text
 
-def preprocess(text):
+def _preprocess(text):
     if text.startswith(ROOT_IF):
         text = text.replace(ROOT_IF, OPEN, 1)
 
@@ -311,12 +314,12 @@ def preprocess(text):
         print("Error: invalid INITIAL_PART - {}".format(text))
 
     text = text.replace('( ', '(').replace(' (', '(').replace(' )', ')').replace(') ', ')')[1:-1]
-    text = simplify(text)
-    text = solve_inconsistency(text)
+    text = _simplify(text)
+    text = _solve_inconsistency(text)
     return text
 
 
-def tokenizer(text):
+def _tokenizer(text):
     tokens = list()
     token = ''
 
@@ -338,13 +341,13 @@ def tokenizer(text):
     return tokens
 
 
-def parse_code(text):
-    text = preprocess(text)
+def _parse_code(text):
+    text = _preprocess(text)
     #print('Preprocessed "{}"...'.format(text))
     code = dict()
 
     reading_params = False
-    tokens = tokenizer(text)
+    tokens = _tokenizer(text)
     stack = list()
 
     content = list()
@@ -393,48 +396,28 @@ def parse_code(text):
     return code
 
 
-def parse_orginal_file(infile, outfile):
+def parse_original_file(infile, outfile):
     recipes = dict()
 
     tuples = fr.line_to_tuple_in_list(infile, separator='\t', ignore_headline=True)
     for i, t in enumerate(tuples):
         if (i%500) == 0 or i == len(tuples) - 1:
             print('Processing tuple {} out of {}...'.format(i+1, len(tuples)))
-        code = parse_code(t[CODE])
+        code = _parse_code(t[CODE])
         id = int(t[ID])
         recipe = OriginalRecipe(t[URL], id, t[TITLE], t[DESC], t[AUTHOR], t[FEATURED], t[USES], t[FAVORITES], code)
         recipes[id] = recipe
 
-    with open(outfile, 'w') as f:
-        json.dump(recipes, f)
+    if outfile is not None:
+        with open(outfile, 'w') as f:
+            json.dump(recipes.values(), f)
+    else:
+        return recipes
 
-infile = '/home/juliano/Documents/phd/commands/ifttt-recipes/original/recipe_summaries.tsv'
-outfile = '/home/juliano/Documents/phd/commands/ifttt-recipes/mine.json'
-parse_orginal_file(infile, outfile)
 
+def run():
+    infile = '/home/juliano/Documents/phd/commands/ifttt-recipes/original/recipe_summaries.tsv'
+    outfile = '/home/juliano/Documents/phd/commands/ifttt-recipes/mine.json'
+    parse_original_file(infile, outfile)
 
-def carai(text, fixed):
-    regex = "(.*)({})(\([0-9]+\))(\([0-9]+\))(\(\—\))(\([0-9]+\))(\(:\))(\([0-9]+\))(.*)".format(fixed)
-    m = re.match(regex, text)
-
-    if m is not None and len(m.groups()) == 9:
-        new_text = list()
-        new_text.append(m.group(1))
-        new_text.append(m.group(2))
-        new_text.append(m.group(3)[:-1])
-        new_text.append('/')
-        new_text.append(m.group(4)[1:-1])
-        new_text.append(m.group(5)[1:-1])
-        new_text.append(m.group(6)[1:-1])
-        new_text.append(m.group(7)[1:-1])
-        new_text.append(m.group(8)[1:])
-        new_text.append(m.group(9))
-
-        return ''.join(new_text)
-
-    return text
-
-#text = 'Days_of_the_week(2)(4)'
-#print(carai(text, 'Days_of_the_week'))
-
-#print(carai('What_time_is_a_good_time_to_call?(7)(4)(—)(11)(:)(00)', 'What_time_is_a_good_time_to_call\?'))
+#run()

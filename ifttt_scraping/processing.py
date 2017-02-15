@@ -54,4 +54,4 @@ def run():
     fr.write_tupla_per_line(outfile, recipes, separator='\t',
                     headline=Recipe('#URL', 'NAME', 'DESC', 'TRIGGER_CHANNEL', 'TRIGGER', 'ACTION_CHANNEL', 'ACTION'))
 
-run()
+#run()
