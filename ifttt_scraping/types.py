@@ -3,6 +3,17 @@ import collections
 OriginalRecipe = collections.namedtuple('OriginalRecipe', 'url id title desc author featured uses favorites code')
 Recipe = collections.namedtuple('Recipe', 'url, name, desc, trigger_channel, trigger, action_channel, action, ids')
 
+ActionInstance = collections.namedtuple('ActionInstance', 'id, name, params')
+Mapping = collections.namedtuple('Mapping', 'id, action_instances, nl_command_statment')
+
+
+def recipe_to_mapping(id, recipe):
+    action_instances = list()
+    action_instances.append(ActionInstance(recipe['ids']['trigger'], None, list()))
+    action_instances.append(ActionInstance(recipe['ids']['action'], None, list()))
+
+    return Mapping(id, action_instances, recipe['name'])
+
 
 def original_recipe_to_recipe(original_recipe, ds):
     if type(original_recipe) == dict:
