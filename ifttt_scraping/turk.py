@@ -98,7 +98,7 @@ def save_relevant_urls():
 
 def run():
     infile = '/home/juliano/Documents/phd/commands/ifttt-recipes/all_relevant.json'
-    outfile = '/home/juliano/git/end-user/end-user-common/src/main/resources/dataset/simple/quirk_mapping.json'
+    outfile = '/home/juliano/Documents/phd/commands/ifttt-recipes/quirk_recipe_format.json'
     with open(infile) as f:
         gold = json.load(f)
 
@@ -108,7 +108,8 @@ def run():
     id = 99000
     for url in urls:
         recipe = gold[url]
-        mapping = ist.recipe_to_mapping(id, recipe)
+        #mapping = ist.recipe_to_mapping(id, recipe)
+        mapping = recipe
         mappings.append(mapping)
         id += 1
 
